@@ -340,9 +340,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
 
 
     #ax2.legend(loc='upper left')
-    ax2.set_xlabel("Mean Net-benefit")
+    ax2.set_xlabel("Mean net-benefit")
     ax2.set_ylabel("Count")
-    ax2.set_title("Mean Net-benefit")
+    ax2.set_title("Mean net-benefit")
 
 
     # Parameters
@@ -358,9 +358,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x0", ax3, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax3.set_xlabel("Parameter x0")
+    ax3.set_xlabel(r"Parameter $\beta_0$")
     ax3.set_ylabel("Count")
-    ax3.set_title("Parameter: x0")
+    ax3.set_title(r"Parameter: $\beta_0$")
 
     #x1
     #---
@@ -373,9 +373,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x1", ax4, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax4.set_xlabel("Parameter x1")
+    ax4.set_xlabel(r"Parameter $\beta_1$")
     ax4.set_ylabel("Count")
-    ax4.set_title("Parameter: x1")
+    ax4.set_title(r"Parameter: $\beta_1$")
 
     #x2
     #---
@@ -388,9 +388,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x2", ax5, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax5.set_xlabel("Parameter x2")
+    ax5.set_xlabel(r"Parameter $\beta_2$")
     ax5.set_ylabel("Count")
-    ax5.set_title("Parameter: x2")
+    ax5.set_title(r"Parameter: $\beta_2$")
 
     return plt.show()
 
