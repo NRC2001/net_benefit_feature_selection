@@ -13,7 +13,6 @@ from scipy import integrate
 
 import dca_fs as dcafs
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics import brier_score_loss
 import torch
 
 import matplotlib.gridspec as gridspec
@@ -202,14 +201,10 @@ def lr_skl_boot(lr_object,
     # mnb
     mnb = mean_net_benefit(df_test[dependent], pred[:, 1], n_thresh=100)['mnb']
 
-    # Brier
-    brier_score = brier_score_loss(df_test[dependent], pred[:, 1])
-
     out = pd.DataFrame({
         "label": [label],
         "auc" : [auc],
-        "mnb": [mnb],
-        "brier_score": [brier_score]
+        "mnb": [mnb]
     })
 
     out = pd.concat([out, coefs], axis=1)
@@ -251,14 +246,10 @@ def lr_boot(df_boot,
     #mnb
     mnb = mean_net_benefit(df_test['y'], pred, n_thresh=100)['mnb']
 
-    # Brier
-    brier_score = brier_score_loss(df_test["y"], pred )
-
     out = pd.DataFrame({
         "label": [label],
         "auc" : [auc],
-        "mnb": [mnb],
-        "brier_score": [brier_score]
+        "mnb": [mnb]
     })
 
     out = pd.concat([out, coefs], axis=1).reset_index().drop("index", axis=1)
@@ -318,16 +309,11 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     fig = plt.figure(figsize=(16, 12))
     gs = gridspec.GridSpec(6, 2)
 
-    #ax1 = fig.add_subplot(gs[0:2, 0])
-    #ax2 = fig.add_subplot(gs[3:5, 0])
-    ax1 = fig.add_subplot(gs[0:1, 0])
-    ax2 = fig.add_subplot(gs[2:3, 0])
-
+    ax1 = fig.add_subplot(gs[0:2, 0])
+    ax2 = fig.add_subplot(gs[3:5, 0])
     ax3 = fig.add_subplot(gs[0:1, 1])
     ax4 = fig.add_subplot(gs[2:3, 1])
     ax5 = fig.add_subplot(gs[4:5, 1])
-
-    ax6 = fig.add_subplot(gs[4:5, 0])
 
     # AUC distribution
     #ax1.hist(skl_boot["auc"], **kwargs, label='scikit learn', histtype=u'step', density=False)
@@ -348,25 +334,16 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     #ax2.hist(torch_boot_log["mnb"], **kwargs, label='pytorch implementation', histtype=u'step', density=False)
     #ax2.hist(torch_boot_mnb["mnb"], **kwargs, label='pytorch MNB', histtype=u'step', density=False)
 
-    my_multi_hist(skl_boot, "mnb", ax6, 'scikit learn', color_1, kwargs)
-    my_multi_hist(torch_boot_log, "mnb", ax6, 'pytorch implementation', color_2, kwargs)
-    my_multi_hist(torch_boot_mnb, "mnb", ax6, 'pytorch MNB', color_3, kwargs)
+    my_multi_hist(skl_boot, "mnb", ax2, 'scikit learn', color_1, kwargs)
+    my_multi_hist(torch_boot_log, "mnb", ax2, 'pytorch implementation', color_2, kwargs)
+    my_multi_hist(torch_boot_mnb, "mnb", ax2, 'pytorch MNB', color_3, kwargs)
 
-
-
-    my_multi_hist(skl_boot, "brier_score", ax2, 'scikit learn', color_1, kwargs)
-    my_multi_hist(torch_boot_log, "brier_score", ax2, 'pytorch implementation', color_2, kwargs)
-    my_multi_hist(torch_boot_mnb, "brier_score", ax2, 'pytorch MNB', color_3, kwargs)
 
     #ax2.legend(loc='upper left')
-    ax6.set_xlabel("Mean net-benefit")
-    ax6.set_ylabel("Count")
-    ax6.set_title("Mean net-benefit")
-
-    #ax2.legend(loc='upper left')
-    ax2.set_xlabel("Brier score")
+    ax2.set_xlabel("Mean Net-benefit")
     ax2.set_ylabel("Count")
-    ax2.set_title("Brier score")
+    ax2.set_title("Mean Net-benefit")
+
 
     # Parameters
     #-------------#
@@ -381,9 +358,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x0", ax3, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax3.set_xlabel(r"Parameter $\beta_0$")
+    ax3.set_xlabel("Parameter x0")
     ax3.set_ylabel("Count")
-    ax3.set_title(r"Parameter: $\beta_0$")
+    ax3.set_title("Parameter: x0")
 
     #x1
     #---
@@ -396,9 +373,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x1", ax4, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax4.set_xlabel(r"Parameter $\beta_1$")
+    ax4.set_xlabel("Parameter x1")
     ax4.set_ylabel("Count")
-    ax4.set_title(r"Parameter: $\beta_1$")
+    ax4.set_title("Parameter: x1")
 
     #x2
     #---
@@ -411,9 +388,9 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
     my_multi_hist(torch_boot_mnb, "x2", ax5, 'pytorch MNB', color_3, kwargs)
 
     #ax3.legend(loc='upper left')
-    ax5.set_xlabel(r"Parameter $\beta_2$")
+    ax5.set_xlabel("Parameter x2")
     ax5.set_ylabel("Count")
-    ax5.set_title(r"Parameter: $\beta_2$")
+    ax5.set_title("Parameter: x2")
 
     return plt.show()
 
@@ -421,16 +398,11 @@ def plot_bootstrap(skl_boot, torch_boot_log, torch_boot_mnb):
 
 
 def skl_reg_path(data,
-                 test_data,
                 dependent = "y",
                 independent_in = None,
                 log_space_min = 0,
                 log_space_max = 10,
-                log_space_steps = 16,
-                warm_start = False,
-                nb_thresholds = [0.1, 0.2]
-                ):
-
+                log_space_steps = 16):
     
     if independent_in == None:
         independent = list(data.drop([dependent], axis=1).columns)
@@ -444,55 +416,18 @@ def skl_reg_path(data,
         solver="liblinear",
         tol=1e-6,
         max_iter=int(1e6),
-        warm_start=warm_start,
+        warm_start=True,
         intercept_scaling=10000.0,
     )
     coefs_ = []
-    
-    thresholds = np.asarray(nb_thresholds)
-    nbs = []
-
     for c in c_steps:
         lr.set_params(C=c)
         lr.fit(data[independent], data[dependent] )
         coefs_.append(lr.coef_.ravel().copy())
 
-        # Calculate the net benefit at each threshold
-        y_pred = lr.predict_proba(test_data[ independent ])[:, 1]
-        y_true = test_data[dependent] 
-        
-        nb_thresh = net_benefit(y_true, y_pred , thresholds = thresholds)
-
-        # calculate mean net benefit
-        mnb = mean_net_benefit(y_true, y_pred, n_thresh=100)['mnb']
-
-        #nbs.append(nb_thresh[1])
-        nbs.append(np.append(nb_thresh[1], mnb))
-
-# mean_net_benefit(df_test['y'], pred, n_thresh=100)['mnb']
-# thresh = np.linspace(0.0, 1.0, num=n_thresh)
-# nb = net_benefit(y_true, y_pred , thresholds=thresh)
-
-
-
     coefs_ = np.array(coefs_)
-    out = pd.DataFrame(coefs_, columns = independent)
-    
-    nbs_cols = ["net_benefit_pt_"+ str(i) for i, j in enumerate(nb_thresholds)] +['mnb0'] 
-    nbs = pd.DataFrame(nbs, columns = nbs_cols )
 
-    out = pd.concat([out, nbs], axis=1)
-
-    #net_benefits = np.array(net_benefits, columns = )
-
-    out["c"] = c_steps
-
-    n_sample = data.shape[0]
-    out["lambda"] = [1./(c*n_sample) for c in c_steps]
-
-    
-
-    return out
+    return coefs_
 
 
 
